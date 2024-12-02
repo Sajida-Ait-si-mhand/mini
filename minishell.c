@@ -1,4 +1,5 @@
 #include "minishell.h"
+
 t_minishell	g_minishell;
 
 void free_env_array(char **arr)
@@ -16,43 +17,24 @@ void free_env_array(char **arr)
     free(arr);
 }
 
-int  ft_check_to_execute(t_token *tmp, char **env)
+int 	ft_check_to_execute(t_token *temp_tokens, char **env)
 {
-	int i = 0;
-	int k = 0;
-	int retu = ft_execute(tmp, env);
+	int retu = ft_execute(temp_tokens, env);
 	if (retu == 127)
 	{
 		free_env_array(env);
 		return 1;
 	}
-
-	while(tmp)
-	{
-		printf("-->%s\n\n", tmp->data);
-		printf("-->%s\n\n", env[i]);
-		i++;
-		k++;
-		tmp = tmp->next_token;
-	}
-	printf("this is the total :%d", k);
 	free_env_array(env);
 	return 0;
 }
 
-int main3(t_minishell data, t_node *red)
+int main3(t_minishell data)
 {
     t_token *temp_tokens;
-	(void)red;
+
     temp_tokens = data.tokens;
-	// int i = 0;
-	// printf("this is the data:%s", data->);
-	// while(red)
-	// {
-	// 	printf("\033[36m this is the red:%u \033[0m", red->redir->red_type);	
-	// 	red = red->next_node;
-	// 	i++;
-	// }
+
     if (ft_check_building(temp_tokens))
     {
 		if (!ft_strcmp(temp_tokens->data, "env") && temp_tokens->data)
@@ -63,10 +45,12 @@ int main3(t_minishell data, t_node *red)
     }
     else
     {
-		// my purpos in this line is to create a fun that 
+		printf("\033[32m-->in:%s\033[0\n", temp_tokens->data);
 		data.envirement = mk_tenv_char(data.envir);
 		ft_check_to_execute(temp_tokens, data.envirement);
+        
     }
+	printf("\033[36m-->out:%s\033[0m\n", temp_tokens->data);
     return (0);
 
 }
@@ -79,9 +63,6 @@ void handle_sigint(int sig)
 
 int	main(int ac, char *av[], char **env)
 {
-	t_node	*tmp_node;
-	int		i;
-	int		j;
 	signal(SIGINT, handle_sigint);
 	if (ac > 2)
 		return (1);
@@ -114,32 +95,32 @@ int	main(int ac, char *av[], char **env)
 		if (ft_check_redirections(&g_minishell, g_minishell.tokens) < 0)
 			continue ;
 
+		main3(g_minishell);
 		g_minishell.nodes = mk_nodes(g_minishell.tokens);
-		tmp_node = g_minishell.nodes;
-		// main3(g_minishell, tmp_node);
-		while (tmp_node)
-		{
-			j = 0;
-			i = 0;
-			printf("----------------------------------------------------------\n");
-			while(tmp_node->cmd[j])
-			{
-				printf("the node \033[32m%d\033[0m cmds n* %d is :\033[32m %s\033[0m\n",
-				i, j, tmp_node->cmd[j]);
-				j++;
-			}
-			while(tmp_node->redir)
-			{
-				printf("the redir file name is: %s\n",
-					tmp_node->redir->file);
-				printf("the redir type is: %d\n",
-					tmp_node->redir->red_type);
-				tmp_node->redir = tmp_node->redir->next;
-			}
-		 	printf("----------------------------------------------------------\n");
-			tmp_node = tmp_node->next_node;
-			i++;
-		}
+		// tmp_node = g_minishell.nodes;
+		// while (tmp_node)
+		// {
+		// 	j = 0;
+		// 	i = 0;
+		// 	printf("----------------------------------------------------------\n");
+		// 	while(tmp_node->cmd[j])
+		// 	{
+		// 		printf("the node \033[32m%d\033[0m cmds n* %d is :\033[32m %s\033[0m\n",
+		// 		i, j, tmp_node->cmd[j]);
+		// 		j++;
+		// 	}
+		// 	while(tmp_node->redir)
+		// 	{
+		// 		printf("the redir file name is: %s\n",
+		// 			tmp_node->redir->file);
+		// 		printf("the redir type is: %d\n",
+		// 			tmp_node->redir->red_type);
+		// 		tmp_node->redir = tmp_node->redir->next;
+		// 	}
+		//  	printf("----------------------------------------------------------\n");
+		// 	tmp_node = tmp_node->next_node;
+		// 	i++;
+		// }
 		free_node_list(g_minishell.nodes);
 	}
 }
