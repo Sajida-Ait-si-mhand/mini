@@ -45,10 +45,8 @@ int main3(t_minishell data)
     }
     else
     {
-		printf("\033[32m-->in:%s\033[0\n", temp_tokens->data);
 		data.envirement = mk_tenv_char(data.envir);
 		ft_check_to_execute(temp_tokens, data.envirement);
-        
     }
 	printf("\033[36m-->out:%s\033[0m\n", temp_tokens->data);
     return (0);
@@ -61,8 +59,18 @@ void handle_sigint(int sig)
 	printf("\n\033[1;35m Minishell~$ \033[0m");
 }
 
+int has_pipe(t_token *tokens) {
+    while (tokens) {
+        if (tokens->data_type == PIPE) {
+            return 1; 
+        }
+        tokens = tokens->next_token;
+    }
+    return 0; 
+}
 int	main(int ac, char *av[], char **env)
 {
+	t_node *tmp_node;
 	signal(SIGINT, handle_sigint);
 	if (ac > 2)
 		return (1);
@@ -96,8 +104,18 @@ int	main(int ac, char *av[], char **env)
 			continue ;
 
 		main3(g_minishell);
+		tmp_node = g_minishell.nodes;
+		if (has_pipe(g_minishell.tokens)) 
+		{
+			printf("Pipe detected in command!\n");
+			if(execute_piped_commands(tmp_node, env) == -1)
+			{
+				perror("pipe__execution");
+				return 1;
+			}
+			continue;
+		}
 		g_minishell.nodes = mk_nodes(g_minishell.tokens);
-		// tmp_node = g_minishell.nodes;
 		// while (tmp_node)
 		// {
 		// 	j = 0;
